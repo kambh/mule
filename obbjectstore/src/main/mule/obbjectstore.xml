@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8ba348fe-a2cd-4884-94d2-e62622608b81" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="a11ceb57-d59f-4698-9701-81e3bcfdc089" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="2f6d6d3c-7107-4fb9-aa4c-e288000e4a35" config-ref="ObjectStore_Config" />
+	<flow name="obbjectstoreFlow" doc:id="e20198b4-a54a-495e-b7c8-4d3a901232ab" >
+		<http:listener doc:name="Listener" doc:id="0bbaa609-2c13-4fb9-a421-5784947036d7" path="/objectstore" config-ref="HTTP_Listener_config"/>
+		<set-variable value="#[attributes.queryParams.key]" doc:name="Set Variable" doc:id="5e57bee9-aae1-485e-80cf-99d71a7cc2b3" variableName="key1"/>
+		<os:store doc:name="Store" doc:id="b095bda9-f58d-459a-9373-d027f7dd9860" key="key1" failIfPresent="true" objectStore="Object_store">
+			<os:value ><![CDATA[#[vars.key]]]></os:value>
+		</os:store>
+		<choice doc:name="Choice" doc:id="448c1491-1179-40c6-bd56-b27798233c77" >
+			<when expression='#[vars.key1 == "ganesh"]'>
+				<set-payload value="key_value is ganesh" doc:name="Set Payload" doc:id="cccfed0a-e34f-48bd-a6bc-e7e128eeee09" />
+			</when>
+			<otherwise >
+				<set-payload value="key_value not defined" doc:name="Set Payload" doc:id="d01e7d5f-97c9-413b-ad9d-23592fda6127" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
